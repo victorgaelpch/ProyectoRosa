@@ -1,0 +1,96 @@
+{% extends "Principal/base.html" %} {% load static %} {% block content %}
+<div
+  class="bg-white p-5 rounded shadow-lg"
+  style="max-width: 600px; margin: 40px auto"
+>
+  <h2 class="fw-bold text-dark mb-4 text-center">
+    {% if producto %}Editar producto{% else %}Agregar producto{% endif %}
+  </h2>
+  <form
+    method="post"
+    enctype="multipart/form-data"
+    class="text-start"
+    id="producto-form"
+  >
+    {% csrf_token %} {% for field in form %}
+    <div class="mb-4 tipo-campo" data-tipo="{{ field.name }}">
+      <label for="{{ field.id_for_label }}" class="form-label text-dark fs-5"
+        >{{ field.label }}</label
+      >
+      {{ field }} {% if field.help_text %}
+      <div class="form-text text-muted">{{ field.help_text }}</div>
+      {% endif %} {% if field.errors %}
+      <div class="text-danger small mt-2">
+        {% for error in field.errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-success w-100 py-3 fs-5">
+      {% if producto %}Guardar cambios{% else %}Guardar producto{% endif %}
+    </button>
+    <a
+      href="{% url 'lista_productos' %}"
+      class="btn btn-secondary mt-3 w-100 py-3 fs-5"
+      >Cancelar</a
+    >
+  </form>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    function mostrarCamposTipo(tipo) {
+      // Oculta todos los campos extra
+      document.querySelectorAll(".tipo-campo").forEach(function (div) {
+        div.style.display = "";
+      });
+      // Muestra solo los campos relevantes
+      const camposPorTipo = {
+        bebida_caliente: ["tipo_vaso", "tipo_leche", "sabor"],
+        bebida_fria: ["tipo_vaso", "tipo_hielo", "sabor"],
+        bocadillo: ["tipo_pan", "relleno"],
+        snack: ["tipo_snack", "tipo_sabor"],
+        reposteria: ["tipo_reposteria", "glaseado", "decorado", "sabor"],
+      };
+      // Oculta todos los campos extra
+      [
+        "tipo_vaso",
+        "tipo_leche",
+        "tipo_hielo",
+        "sabor",
+        "tipo_pan",
+        "relleno",
+        "tipo_snack",
+        "tipo_sabor",
+        "tipo_reposteria",
+        "glaseado",
+        "decorado",
+      ].forEach(function (campo) {
+        var div = document.querySelector(
+          '.tipo-campo[data-tipo="' + campo + '"]'
+        );
+        if (div) div.style.display = "none";
+      });
+      // Muestra los campos del tipo seleccionado
+      if (camposPorTipo[tipo]) {
+        camposPorTipo[tipo].forEach(function (campo) {
+          var div = document.querySelector(
+            '.tipo-campo[data-tipo="' + campo + '"]'
+          );
+          if (div) div.style.display = "";
+        });
+      }
+    }
+
+    var tipoSelect = document.getElementById("id_tipo_producto");
+    if (tipoSelect) {
+      mostrarCamposTipo(tipoSelect.value);
+      tipoSelect.addEventListener("change", function () {
+        mostrarCamposTipo(this.value);
+      });
+    }
+  });
+</script>
+{% endblock %}

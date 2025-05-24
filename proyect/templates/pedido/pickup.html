@@ -1,0 +1,282 @@
+{% extends "Principal/base.html" %} {% block content %}
+<div
+  class="bg-white p-5 rounded shadow-lg"
+  style="max-width: 1000px; margin: 40px auto"
+>
+  <h2 class="fw-bold text-dark mb-4 text-center">Pedido Pickup</h2>
+  {% if messages %} {% for message in messages %}
+  <div class="alert alert-danger">{{ message }}</div>
+  {% endfor %} {% endif %}
+  <form id="pickup-form" method="post">
+    {% csrf_token %}
+    <!-- Paso 1: Seleccionar sucursal -->
+    <div id="paso-1">
+      <h5 class="mb-3">1. Selecciona la sucursal</h5>
+      <select
+        class="form-select mb-4"
+        name="sucursal"
+        id="sucursal-select"
+        required
+      >
+        <option value="">Selecciona una sucursal</option>
+        {% for sucursal in sucursales %}
+        <option value="{{ sucursal.id }}">{{ sucursal }}</option>
+        {% endfor %}
+      </select>
+      <button
+        type="button"
+        class="btn btn-primary w-100"
+        onclick="mostrarPaso2()"
+      >
+        Siguiente
+      </button>
+    </div>
+
+    <!-- Paso 2: Seleccionar horario -->
+    <div id="paso-2" style="display: none">
+      <h5 class="mb-3">2. Selecciona el horario de recolección</h5>
+      <input
+        type="datetime-local"
+        class="form-control mb-4"
+        name="horario_recoleccion"
+        id="horario-input"
+        required
+      />
+      <button
+        type="button"
+        class="btn btn-secondary w-100 mb-2"
+        onclick="mostrarPaso1()"
+      >
+        Atrás
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary w-100"
+        onclick="mostrarPaso3()"
+      >
+        Siguiente
+      </button>
+    </div>
+
+    <!-- Paso 3: Agregar productos y ver carrito al lado -->
+    <div id="paso-3" style="display: none">
+      <h5 class="mb-3">3. Agrega productos a tu pedido</h5>
+      <div class="row">
+        <!-- Lista de productos -->
+        <div class="col-md-7 mb-4">
+          <div class="row row-cols-1 row-cols-md-2 g-3">
+            {% for producto in productos %}
+            <div class="col">
+              <div class="card h-100">
+                {% if producto.imagen %}
+                <img
+                  src="{{ producto.imagen.url }}"
+                  class="card-img-top"
+                  style="height: 120px; object-fit: cover"
+                />
+                {% endif %}
+                <div class="card-body p-2">
+                  <h6 class="card-title mb-1">
+                    {{ producto.nombre_producto }}
+                  </h6>
+                  <p class="mb-1 text-muted" style="font-size: 0.9em">
+                    ${{ producto.precio }}
+                  </p>
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary btn-sm w-100"
+                    onclick="agregarAlCarrito({{ producto.id }}, '{{ producto.nombre_producto|escapejs }}', {{ producto.precio }})"
+                  >
+                    Agregar
+                  </button>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <!-- Carrito a la derecha -->
+        <div class="col-md-5">
+          <div class="card h-100">
+            <div class="card-header bg-primary text-white fw-bold">Carrito</div>
+            <div class="card-body" id="carrito-lista"></div>
+            <div class="card-footer">
+              <span class="fw-bold"
+                >Total: $<span id="carrito-total">0.00</span></span
+              >
+            </div>
+          </div>
+          <button
+            type="button"
+            class="btn btn-secondary w-100 mt-3"
+            onclick="mostrarPaso2()"
+          >
+            Atrás
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary w-100 mt-2"
+            onclick="mostrarPaso4()"
+          >
+            Siguiente
+          </button>
+          <input type="hidden" name="carrito_json" id="carrito-json" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Paso 4: Seleccionar método de pago -->
+    <div id="paso-4" style="display: none">
+      <h5 class="mb-3">4. Selecciona el método de pago</h5>
+      <select
+        class="form-select mb-4"
+        name="tipo_pago"
+        id="tipo-pago-select"
+        required
+      >
+        <option value="">Selecciona un método</option>
+        <option value="tarjeta">Tarjeta</option>
+        <option value="efectivo">Efectivo</option>
+      </select>
+      <div id="datos-usuario" style="display: none">
+        <h6 class="mb-2">Verifica tus datos</h6>
+        <input
+          type="text"
+          class="form-control mb-2"
+          name="nombre"
+          placeholder="Nombre completo"
+          required
+        />
+        <input
+          type="email"
+          class="form-control mb-2"
+          name="correo"
+          placeholder="Correo electrónico"
+          required
+        />
+        <input
+          type="tel"
+          class="form-control mb-2"
+          name="telefono"
+          placeholder="Teléfono"
+          required
+        />
+      </div>
+      <button
+        type="button"
+        class="btn btn-secondary w-100 mb-2"
+        onclick="mostrarPaso3()"
+      >
+        Atrás
+      </button>
+      <button type="submit" class="btn btn-success w-100">
+        Finalizar pedido
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Navegación entre pasos
+  function mostrarPaso1() {
+    document.getElementById("paso-1").style.display = "";
+    document.getElementById("paso-2").style.display = "none";
+    document.getElementById("paso-3").style.display = "none";
+    document.getElementById("paso-4").style.display = "none";
+  }
+  function mostrarPaso2() {
+    if (document.getElementById("sucursal-select").value === "") {
+      alert("Selecciona una sucursal");
+      return;
+    }
+    document.getElementById("paso-1").style.display = "none";
+    document.getElementById("paso-2").style.display = "";
+    document.getElementById("paso-3").style.display = "none";
+    document.getElementById("paso-4").style.display = "none";
+  }
+  function mostrarPaso3() {
+    if (document.getElementById("horario-input").value === "") {
+      alert("Selecciona un horario");
+      return;
+    }
+    document.getElementById("paso-1").style.display = "none";
+    document.getElementById("paso-2").style.display = "none";
+    document.getElementById("paso-3").style.display = "";
+    document.getElementById("paso-4").style.display = "none";
+  }
+  function mostrarPaso4() {
+    if (carrito.length === 0) {
+      alert("Agrega al menos un producto al carrito.");
+      return;
+    }
+    document.getElementById("paso-1").style.display = "none";
+    document.getElementById("paso-2").style.display = "none";
+    document.getElementById("paso-3").style.display = "none";
+    document.getElementById("paso-4").style.display = "";
+  }
+  document
+    .getElementById("tipo-pago-select")
+    .addEventListener("change", function () {
+      if (this.value === "efectivo") {
+        document.getElementById("datos-usuario").style.display = "";
+      } else {
+        document.getElementById("datos-usuario").style.display = "none";
+      }
+    });
+
+  // Carrito en memoria
+  let carrito = [];
+
+  function agregarAlCarrito(id, nombre, precio) {
+    let item = carrito.find((p) => p.id === id);
+    if (item) {
+      item.cantidad += 1;
+    } else {
+      carrito.push({ id, nombre, precio, cantidad: 1 });
+    }
+    actualizarCarrito();
+  }
+
+  function quitarDelCarrito(id) {
+    carrito = carrito.filter((p) => p.id !== id);
+    actualizarCarrito();
+  }
+
+  function cambiarCantidad(id, cantidad) {
+    let item = carrito.find((p) => p.id === id);
+    if (item && cantidad > 0) {
+      item.cantidad = parseInt(cantidad);
+    }
+    actualizarCarrito();
+  }
+
+  function actualizarCarrito() {
+    let lista = document.getElementById("carrito-lista");
+    let total = 0;
+    lista.innerHTML = "";
+    if (carrito.length === 0) {
+      lista.innerHTML =
+        '<span class="text-muted">El carrito está vacío.</span>';
+    } else {
+      carrito.forEach((p) => {
+        total += p.precio * p.cantidad;
+        lista.innerHTML += `
+          <div class="d-flex align-items-center mb-2">
+            <span class="me-2">${p.nombre}</span>
+            <input type="number" min="1" value="${
+              p.cantidad
+            }" style="width:60px" class="form-control form-control-sm me-2"
+              onchange="cambiarCantidad(${p.id}, this.value)">
+            <span class="me-2">$${(p.precio * p.cantidad).toFixed(2)}</span>
+            <button type="button" class="btn btn-danger btn-sm" onclick="quitarDelCarrito(${
+              p.id
+            })">Quitar</button>
+          </div>
+        `;
+      });
+    }
+    document.getElementById("carrito-total").innerText = total.toFixed(2);
+    document.getElementById("carrito-json").value = JSON.stringify(carrito);
+  }
+</script>
+{% endblock %}

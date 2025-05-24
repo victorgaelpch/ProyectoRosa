@@ -1,0 +1,75 @@
+<!-- prettier-ignore -->
+{% extends "Principal/base.html" %} {% block content %}
+<div
+  class="bg-white p-5 rounded shadow-lg"
+  style="max-width: 900px; margin: 40px auto"
+>
+  <h2 class="fw-bold text-dark mb-4 text-center">Pedidos Pickup Activos</h2>
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>#</th>
+        <th>Sucursal</th>
+        <th>Usuario</th>
+        <th>Horario recolección</th>
+        <th>Estado</th>
+        <th>Total</th>
+        <th>Detalle</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pedido in pedidos %}
+      <tr
+        data-bs-toggle="collapse"
+        data-bs-target="#detalle{{ pedido.id }}"
+        aria-expanded="false"
+        aria-controls="detalle{{ pedido.id }}"
+        style="cursor: pointer"
+      >
+        <td>{{ pedido.id }}</td>
+        <td>{{ pedido.sucursal.nombre_sucursal }}</td>
+        <td>{{ pedido.usuario.username }}</td>
+        <td>{{ pedido.pickup.horario_recoleccion|date:"d/m/Y H:i" }}</td>
+        <td>{{ pedido.get_estado_display }}</td>
+        <td>${{ pedido.total }}</td>
+        <td>
+          <button
+            class="btn btn-info btn-sm"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#detalle{{ pedido.id }}"
+            aria-expanded="false"
+            aria-controls="detalle{{ pedido.id }}"
+          >
+            Ver
+          </button>
+        </td>
+      </tr>
+      <tr class="collapse" id="detalle{{ pedido.id }}">
+        <td colspan="7">
+          <div class="p-3">
+  <strong>Productos:</strong>
+  <ul class="mb-2">
+    {% for detalle in pedido.detalles.all %}
+      <li>
+        {{ detalle.producto.nombre_producto }} (x{{ detalle.cantidad }}) - ${{ detalle.subtotal }}
+      </li>
+    {% endfor %}
+  </ul>
+  <strong>Método de pago:</strong> {{ pedido.pickup.tipo_pago|capfirst }}<br />
+  <strong>Horario de recolección:</strong> {{ pedido.pickup.horario_recoleccion|date:"d/m/Y H:i" }}<br />
+  <strong>Total:</strong> ${{ pedido.total }}
+</div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7" class="text-center text-muted">
+          No hay pedidos pickup activos.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

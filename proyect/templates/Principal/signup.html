@@ -1,0 +1,129 @@
+{% extends "Principal/base.html" %} {% load static %} {% block content %}
+<div
+  class="d-flex justify-content-center align-items-center min-vh-100 bg-light"
+  style="padding: 40px 0"
+>
+  <div class="w-100" style="max-width: 500px">
+    <div
+      class="p-5 bg-white rounded shadow-lg"
+      style="box-shadow: 0 0 24px rgba(0, 0, 0, 0.08)"
+    >
+      <h2
+        class="text-center fw-semibold text-dark mb-5"
+        style="letter-spacing: 1px"
+      >
+        Registro
+      </h2>
+      <p class="text-center text-danger mb-4">{{ error }}</p>
+
+      <form action="/signup/" method="POST">
+        {% csrf_token %}
+
+        <div class="mb-4">
+          <label
+            for="{{ form.username.id_for_label }}"
+            class="form-label text-dark fs-5"
+          >
+            Nombre de usuario
+          </label>
+          <input
+            type="text"
+            name="{{ form.username.name }}"
+            id="{{ form.username.id_for_label }}"
+            value="{{ form.username.value|default:'' }}"
+            class="form-control form-control-lg"
+            placeholder="Ingresa tu nombre de usuario"
+            style="padding: 14px; font-size: 1.1rem"
+          />
+          {% if form.username.errors %}
+          <div class="text-danger small mt-2">
+            {% for error in form.username.errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="{{ form.email.id_for_label }}"
+            class="form-label text-dark fs-5"
+          >
+            Correo
+          </label>
+          <input
+            type="text"
+            name="{{ form.email.name }}"
+            id="{{ form.email.id_for_label }}"
+            value="{{ form.email.value|default:'' }}"
+            class="form-control form-control-lg"
+            placeholder="Ingresa tu correo"
+            style="padding: 14px; font-size: 1.1rem"
+          />
+          {% if form.email.errors %}
+          <div class="text-danger small mt-2">
+            {% for error in form.email.errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="{{ form.password1.id_for_label }}"
+            class="form-label text-dark fs-5"
+          >
+            Contraseña
+          </label>
+          <input
+            type="password"
+            name="{{ form.password1.name }}"
+            id="{{ form.password1.id_for_label }}"
+            value="{{ form.password1.value|default:'' }}"
+            class="form-control form-control-lg"
+            placeholder="Ingresa tu contraseña"
+            style="padding: 14px; font-size: 1.1rem"
+          />
+          {% if form.password1.errors %}
+          <div class="text-danger small mt-2">
+            {% for error in form.password1.errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="{{ form.password2.id_for_label }}"
+            class="form-label text-dark fs-5"
+          >
+            Confirmar Contraseña
+          </label>
+          <input
+            type="password"
+            name="{{ form.password2.name }}"
+            id="{{ form.password2.id_for_label }}"
+            value="{{ form.password2.value|default:'' }}"
+            class="form-control form-control-lg"
+            placeholder="Confirma tu contraseña"
+            style="padding: 14px; font-size: 1.1rem"
+          />
+          {% if form.password2.errors %}
+          <div class="text-danger small mt-2">
+            {% for error in form.password2.errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 py-3 fs-5">
+          Registrar
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "Principal/base.html" %} {% load static %} {% block content %}
+<div
+  class="bg-white p-5 rounded shadow-lg"
+  style="max-width: 1200px; margin: 40px auto"
+>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-dark mb-0">Productos disponibles</h2>
+    {% if es_gerente %}
+    <a href="{% url 'agregar_producto' %}" class="btn btn-success fs-5"
+      >Agregar producto</a
+    >
+    {% endif %}
+  </div>
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for producto in productos %}
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        {% if producto.imagen %}
+        <img
+          src="{{ producto.imagen.url }}"
+          class="card-img-top"
+          alt="{{ producto.nombre_producto }}"
+          style="height: 250px; object-fit: cover"
+        />
+        {% else %}
+        <div
+          class="bg-light d-flex align-items-center justify-content-center"
+          style="height: 250px"
+        >
+          <span class="text-muted">Sin imagen</span>
+        </div>
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title fw-bold">{{ producto.nombre_producto }}</h5>
+          <p class="card-text mb-1">
+            <strong>Tamaño:</strong> {{ producto.tamaño }}
+          </p>
+          <p class="card-text mb-1">
+            <strong>Tipo:</strong> {{ producto.tipo }}
+          </p>
+          <p class="card-text mb-2" style="min-height: 48px">
+            {{ producto.descripcion }}
+          </p>
+          <p class="card-text fs-5 fw-bold text-success mb-0">
+            ${{ producto.precio }}
+          </p>
+        </div>
+        {% if es_gerente %}
+        <div
+          class="card-footer bg-white border-0 d-flex justify-content-between"
+        >
+          <a
+            href="{% url 'editar_producto' producto.id %}"
+            class="btn btn-warning btn-sm w-50 me-2"
+            >Editar</a
+          >
+          <a
+            href="{% url 'eliminar_producto' producto.id %}"
+            class="btn btn-danger btn-sm w-50"
+            >Eliminar</a
+          >
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center text-muted">
+      No hay productos registrados.
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

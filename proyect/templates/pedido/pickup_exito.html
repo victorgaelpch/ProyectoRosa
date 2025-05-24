@@ -1,0 +1,19 @@
+{% extends "Principal/base.html" %} {% block content %}
+<div
+  class="bg-white p-5 rounded shadow-lg"
+  style="max-width: 600px; margin: 40px auto"
+>
+  <h2 class="fw-bold text-success mb-4 text-center">
+    ¡Pedido pickup iniciado!
+  </h2>
+  <p class="fs-5 text-center">
+    Sucursal: <strong>{{ sucursal }}</strong><br />
+    Horario de recolección: <strong>{{ horario }}</strong>
+  </p>
+  <div class="text-center">
+    <a href="{% url 'lista_productos' %}" class="btn btn-success mt-3"
+      >Agregar productos</a
+    >
+  </div>
+</div>
+{% endblock %}

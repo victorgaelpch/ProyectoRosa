@@ -1,0 +1,56 @@
+[
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$OAivycdVgUFBBOIQPYOaRp$MyFz8y9+NXiRMm7GuRWERPTTF0WrmcVmpnB3u6MRWs0=",
+    "last_login": "2025-03-06T19:25:22.245Z",
+    "is_superuser": false,
+    "username": "Ryunix",
+    "first_name": "",
+    "last_name": "",
+    "email": "victorgaelpch@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-03-06T05:45:13.050Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$g1H9niydOrMwXNNdODd5W0$dAwBSyVbu19kbKYPFcr6i8Bnn/FzvyrwwdeCWvItx/k=",
+    "last_login": "2025-03-06T05:58:18.347Z",
+    "is_superuser": false,
+    "username": "magicalMix",
+    "first_name": "",
+    "last_name": "",
+    "email": "victorgaelpch@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-03-06T05:52:54.775Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 1002,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$xi0mYdOA9kWzFQVftUbGdf$aI6ULHsr53SJJo78YtNVyZt2ej6p4qE5Zy24j1QaJQE=",
+    "last_login": "2025-03-19T06:09:06.436Z",
+    "is_superuser": true,
+    "username": "jiren",
+    "first_name": "",
+    "last_name": "",
+    "email": "victorgaelpch@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-03-19T06:07:50.635Z",
+    "groups": [],
+    "user_permissions": []
+  }
+}
+]
