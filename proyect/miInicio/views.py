@@ -54,9 +54,12 @@ def inicio_sesion(request):
             user = authenticate(username=username, password=password)
             login(request, user)
             if user.is_authenticated:
-                print(request.user)
-                print(request.user.is_authenticated)
-                return redirect('ver_perfil')
+                # Redirección según tipo de usuario
+                if user.is_staff:
+                    # Cambia por el nombre de tu url de caja
+                    return redirect('caja_buscar_pedido')
+                else:
+                    return redirect('ver_perfil')
         return render(request, 'Principal/signin.html', {
             'form': form,
             'error': 'Usuario o contraseña incorrecto'

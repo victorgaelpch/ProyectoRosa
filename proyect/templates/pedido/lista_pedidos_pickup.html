@@ -1,75 +1,68 @@
-<!-- prettier-ignore -->
-{% extends "Principal/base.html" %} {% block content %}
-<div
-  class="bg-white p-5 rounded shadow-lg"
-  style="max-width: 900px; margin: 40px auto"
->
-  <h2 class="fw-bold text-dark mb-4 text-center">Pedidos Pickup Activos</h2>
-  <table class="table table-hover align-middle">
-    <thead class="table-light">
-      <tr>
-        <th>#</th>
-        <th>Sucursal</th>
-        <th>Usuario</th>
-        <th>Horario recolección</th>
-        <th>Estado</th>
-        <th>Total</th>
-        <th>Detalle</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for pedido in pedidos %}
-      <tr
-        data-bs-toggle="collapse"
-        data-bs-target="#detalle{{ pedido.id }}"
-        aria-expanded="false"
-        aria-controls="detalle{{ pedido.id }}"
-        style="cursor: pointer"
-      >
-        <td>{{ pedido.id }}</td>
-        <td>{{ pedido.sucursal.nombre_sucursal }}</td>
-        <td>{{ pedido.usuario.username }}</td>
-        <td>{{ pedido.pickup.horario_recoleccion|date:"d/m/Y H:i" }}</td>
-        <td>{{ pedido.get_estado_display }}</td>
-        <td>${{ pedido.total }}</td>
-        <td>
-          <button
-            class="btn btn-info btn-sm"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#detalle{{ pedido.id }}"
-            aria-expanded="false"
-            aria-controls="detalle{{ pedido.id }}"
-          >
-            Ver
-          </button>
-        </td>
-      </tr>
-      <tr class="collapse" id="detalle{{ pedido.id }}">
-        <td colspan="7">
-          <div class="p-3">
-  <strong>Productos:</strong>
-  <ul class="mb-2">
-    {% for detalle in pedido.detalles.all %}
-      <li>
-        {{ detalle.producto.nombre_producto }} (x{{ detalle.cantidad }}) - ${{ detalle.subtotal }}
-      </li>
+{% extends "Principal/base.html" %}
+{% block content %}
+<div class="bg-white p-4 rounded shadow-lg" style="max-width: 1200px; margin: 40px auto;">
+  <h2 class="fw-bold text-dark mb-4 text-center">Tus Pedidos Pickup Activos</h2>
+  <form method="get" class="mb-3 text-end">
+    <label>
+      <input type="checkbox" name="mostrar_recogidos" value="1" {% if mostrar_recogidos %}checked{% endif %} onchange="this.form.submit()">
+      Mostrar pedidos recogidos
+    </label>
+    <label class="ms-3">
+    <input type="checkbox" name="mostrar_cancelados" value="1" {% if mostrar_cancelados %}checked{% endif %} onchange="this.form.submit()">
+    Mostrar pedidos cancelados
+  </label>
+  </form>
+  {% if pedidos %}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for pedido in pedidos %}
+    <div class="col">
+      <div class="card h-100 border-primary shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <span class="fw-bold">Código: <span class="badge bg-light text-primary fs-6">{{ pedido.codigo }}</span></span>
+          {% if pedido.estado == "pendiente" %}
+            <span class="badge bg-warning text-dark">{{ pedido.get_estado_display }}</span>
+          {% elif pedido.estado == "pagado" %}
+            <span class="badge bg-info text-dark">{{ pedido.get_estado_display }}</span>
+          {% elif pedido.estado == "recogido" %}
+            <span class="badge bg-success">{{ pedido.get_estado_display }}</span>
+          {% elif pedido.estado == "cancelado" %}
+            <span class="badge bg-danger">{{ pedido.get_estado_display }}</span>
+          {% else %}
+            <span class="badge bg-secondary">{{ pedido.get_estado_display }}</span>
+          {% endif %}
+        </div>
+        <div class="card-body">
+          <h5 class="card-title mb-2">Sucursal: {{ pedido.sucursal.nombre_sucursal }}</h5>
+          <p class="mb-1"><strong>Horario:</strong> {{ pedido.pickup.horario_recoleccion|date:"d/m/Y H:i" }}</p>
+          <p class="mb-1"><strong>Método de pago:</strong> {{ pedido.pickup.tipo_pago|capfirst }}</p>
+          <p class="mb-1"><strong>Total:</strong> ${{ pedido.total }}</p>
+          <hr>
+          <strong>Productos:</strong>
+          <ul class="mb-0">
+            {% for detalle in pedido.detalles.all %}
+              <li>{{ detalle.producto.nombre_producto }} (x{{ detalle.cantidad }}) - ${{ detalle.subtotal }}</li>
+            {% endfor %}
+          </ul>
+          <div class="d-grid gap-2 mt-3">
+            <a href="{% url 'pickup_exito_estado' pedido.id %}" class="btn btn-outline-primary">
+              Ver estado
+            </a>
+            {% if pedido.estado == "pendiente" and pedido.usuario == user %}
+            <form method="post" action="{% url 'cancelar_pedido' pedido.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger w-100" onclick="return confirm('¿Seguro que deseas cancelar este pedido?');">
+                Cancelar pedido
+              </button>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
     {% endfor %}
-  </ul>
-  <strong>Método de pago:</strong> {{ pedido.pickup.tipo_pago|capfirst }}<br />
-  <strong>Horario de recolección:</strong> {{ pedido.pickup.horario_recoleccion|date:"d/m/Y H:i" }}<br />
-  <strong>Total:</strong> ${{ pedido.total }}
-</div>
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="7" class="text-center text-muted">
-          No hay pedidos pickup activos.
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  </div>
+  {% else %}
+    <div class="alert alert-info text-center mt-4">No tienes pedidos pickup activos.</div>
+  {% endif %}
 </div>
 {% endblock %}

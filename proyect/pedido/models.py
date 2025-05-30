@@ -2,6 +2,7 @@
 from menu.models import Producto
 from django.db import models
 from django.contrib.auth.models import User
+import uuid
 # Create your models here.
 
 
@@ -33,6 +34,7 @@ class PerfilUsuario(models.Model):
     telefono = models.CharField(max_length=15)
     fecha_registro = models.DateTimeField(auto_now_add=True)
     fecha_nacimiento = models.DateField(null=True, blank=True)
+    puntos = models.PositiveIntegerField(default=0)
     id_gestor_pagos_online = models.CharField(
         max_length=100, blank=True)
 
@@ -48,12 +50,22 @@ class Pedido(models.Model):
         ('entregado', 'Entregado'),
         ('cancelado', 'Cancelado'),
     ]
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    codigo = models.CharField(
+        max_length=12, unique=True, blank=True, null=True)
+    usuario = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL)
     sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE)
     estado = models.CharField(
         max_length=20, choices=ESTADOS, default='pendiente')
     fecha_hora = models.DateTimeField(auto_now_add=True)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    puntos_ganados = models.PositiveIntegerField(default=0)
+    puntos_usados = models.PositiveIntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        if not self.codigo:
+            self.codigo = uuid.uuid4().hex[:8].upper()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'Pedido #{self.id} - {self.usuario.username} ({self.get_estado_display()})'

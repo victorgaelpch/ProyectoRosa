@@ -1,19 +1,45 @@
-{% extends "Principal/base.html" %} {% block content %}
+{% extends "Principal/base.html" %}
+{% block content %}
 <div
   class="bg-white p-5 rounded shadow-lg"
   style="max-width: 600px; margin: 40px auto"
 >
   <h2 class="fw-bold text-success mb-4 text-center">
-    ¡Pedido pickup iniciado!
+    Estado de tu pedido pickup
   </h2>
   <p class="fs-5 text-center">
+    <strong>Código de tu pedido:</strong>
+    <span class="badge bg-primary fs-4">{{ pedido.codigo }}</span><br />
+    <strong>Estado actual:</strong>
+    {% if pedido.estado == "pendiente" %}
+      <span class="badge bg-warning text-dark">{{ pedido.get_estado_display }}</span>
+    {% elif pedido.estado == "pagado" %}
+      <span class="badge bg-info text-dark">{{ pedido.get_estado_display }}</span>
+      {% if pedido.puntos_usados > 0 %}
+        <div class="alert alert-info text-center mt-3">
+          Usaste <strong>{{ pedido.puntos_usados }}</strong> puntos para pagar este pedido.
+        </div>
+      {% endif %}
+      {% if pedido.puntos_ganados > 0 %}
+        <div class="alert alert-success text-center mt-2">
+          ¡Felicidades! Ganaste <strong>{{ pedido.puntos_ganados }}</strong> puntos con tu compra.
+        </div>
+      {% endif %}
+    {% elif pedido.estado == "recogido" %}
+      <span class="badge bg-success">{{ pedido.get_estado_display }}</span>
+    {% elif pedido.estado == "cancelado" %}
+      <span class="badge bg-danger">{{ pedido.get_estado_display }}</span>
+    {% else %}
+      <span class="badge bg-secondary">{{ pedido.get_estado_display }}</span>
+    {% endif %}
+    <br />
     Sucursal: <strong>{{ sucursal }}</strong><br />
     Horario de recolección: <strong>{{ horario }}</strong>
   </p>
   <div class="text-center">
-    <a href="{% url 'lista_productos' %}" class="btn btn-success mt-3"
-      >Agregar productos</a
-    >
+    <a href="{% url 'lista_pedidos_pickup' %}" class="btn btn-success mt-3">
+      Ver mis pedidos
+    </a>
   </div>
 </div>
 {% endblock %}
