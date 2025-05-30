@@ -1,10 +1,20 @@
-{% extends "Principal/base.html" %} {% load static %} {% block content %}
+{% extends "Principal/base.html" %}
+{% load static %}
+{% block content %}
 <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
-  <div class="bg-white p-4 rounded shadow-lg text-center">
-    <h1 class="display-4 fw-bold text-dark">Hola</h1>
-    <p class="lead text-secondary">
-      PUUUUM aquí debería de ir un texto de introducción, mejor pongo un BOOOOOM
+  <div class="bg-white p-5 rounded shadow-lg text-center" style="max-width: 550px;">
+    <img src="{% static 'img/logo.jpg' %}" alt="Logo" style="width: 90px; margin-bottom: 18px;">
+    <h1 class="display-5 fw-bold text-dark mb-3">¡Bienvenido a Café sin filas!</h1>
+    <p class="lead text-secondary mb-4">
+      Disfruta la mejor experiencia de café, realiza tu pedido en línea y recógelo en tu sucursal favorita.<br>
+      <span class="text-primary fw-semibold">¡Acumula puntos y obtén recompensas!</span>
     </p>
+    <a href="{% url 'pickup_pedido' %}" class="btn btn-primary btn-lg w-100 mb-2">
+      <i class="bi bi-bag-plus"></i> Hacer un pedido Pickup
+    </a>
+    <a href="{% url 'kiosko_pedido' %}" class="btn btn-outline-secondary w-100">
+      <i class="bi bi-tablet"></i> Pedido en Kiosko
+    </a>
   </div>
 </div>
 {% endblock %}

@@ -1,42 +1,51 @@
-{% extends "Principal/base.html" %} {% load static %} {% block content %}
-<div
-  class="bg-white p-5 rounded shadow-lg"
-  style="max-width: 1200px; margin: 40px auto"
->
-  <div class="d-flex justify-content-between align-items-center mb-4">
+{% extends "Principal/base.html" %}
+{% load static %}
+{% block content %}
+<div class="bg-white p-5 rounded shadow-lg" style="max-width: 1200px; margin: 40px auto">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
     <h2 class="fw-bold text-dark mb-0">Productos disponibles</h2>
-    {% if es_gerente %}
-    <a href="{% url 'agregar_producto' %}" class="btn btn-success fs-5"
-      >Agregar producto</a
-    >
-    {% endif %}
+    <div class="d-flex align-items-center gap-3">
+      <form method="get" class="mb-0">
+        <label for="tipo" class="me-2 fw-semibold text-secondary">Filtrar por tipo:</label>
+        <select name="tipo" id="tipo" class="form-select d-inline-block w-auto" style="min-width: 180px;" onchange="this.form.submit()">
+          <option value="">Todos</option>
+          {% for t in tipos %}
+            <option value="{{ t }}" {% if t == tipo_seleccionado %}selected{% endif %}>{{ t|capfirst }}</option>
+          {% endfor %}
+        </select>
+      </form>
+      {% if es_gerente %}
+      <a href="{% url 'agregar_producto' %}" class="btn btn-success fs-6 px-4">
+        <i class="bi bi-plus-circle"></i> Agregar producto
+      </a>
+      {% endif %}
+    </div>
   </div>
+  
   <div class="row row-cols-1 row-cols-md-3 g-4">
     {% for producto in productos %}
     <div class="col">
-      <div class="card h-100 shadow-sm">
+      <div class="card h-100 shadow-sm border-0 producto-card" style="transition: box-shadow .2s;">
         {% if producto.imagen %}
         <img
           src="{{ producto.imagen.url }}"
           class="card-img-top"
           alt="{{ producto.nombre_producto }}"
-          style="height: 250px; object-fit: cover"
+          style="height: 220px; object-fit: cover; border-radius: 0.5rem 0.5rem 0 0;"
         />
         {% else %}
         <div
           class="bg-light d-flex align-items-center justify-content-center"
-          style="height: 250px"
+          style="height: 220px; border-radius: 0.5rem 0.5rem 0 0;"
         >
           <span class="text-muted">Sin imagen</span>
         </div>
         {% endif %}
         <div class="card-body">
-          <h5 class="card-title fw-bold">{{ producto.nombre_producto }}</h5>
+          <h5 class="card-title fw-bold mb-1">{{ producto.nombre_producto }}</h5>
+          <span class="badge bg-primary mb-2">{{ producto.tipo|capfirst }}</span>
           <p class="card-text mb-1">
-            <strong>Tamaño:</strong> {{ producto.tamaño }}
-          </p>
-          <p class="card-text mb-1">
-            <strong>Tipo:</strong> {{ producto.tipo }}
+            <strong class="text-secondary">Tamaño:</strong> {{ producto.tamaño }}
           </p>
           <p class="card-text mb-2" style="min-height: 48px">
             {{ producto.descripcion }}
@@ -46,19 +55,13 @@
           </p>
         </div>
         {% if es_gerente %}
-        <div
-          class="card-footer bg-white border-0 d-flex justify-content-between"
-        >
-          <a
-            href="{% url 'editar_producto' producto.id %}"
-            class="btn btn-warning btn-sm w-50 me-2"
-            >Editar</a
-          >
-          <a
-            href="{% url 'eliminar_producto' producto.id %}"
-            class="btn btn-danger btn-sm w-50"
-            >Eliminar</a
-          >
+        <div class="card-footer bg-white border-0 d-flex justify-content-between">
+          <a href="{% url 'editar_producto' producto.id %}" class="btn btn-warning btn-sm w-50 me-2">
+            <i class="bi bi-pencil-square"></i> Editar
+          </a>
+          <a href="{% url 'eliminar_producto' producto.id %}" class="btn btn-danger btn-sm w-50">
+            <i class="bi bi-trash"></i> Eliminar
+          </a>
         </div>
         {% endif %}
       </div>
@@ -70,4 +73,11 @@
     {% endfor %}
   </div>
 </div>
+
+<style>
+.producto-card:hover {
+  box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,.15)!important;
+  transform: translateY(-2px);
+}
+</style>
 {% endblock %}

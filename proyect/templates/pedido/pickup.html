@@ -1,12 +1,12 @@
-{% extends "Principal/base.html" %} {% block content %}
-<div
-  class="bg-white p-5 rounded shadow-lg"
-  style="max-width: 1000px; margin: 40px auto"
->
+{% extends "Principal/base.html" %}
+{% block content %}
+<div class="bg-white p-5 rounded shadow-lg" style="max-width: 1100px; margin: 40px auto">
   <h2 class="fw-bold text-dark mb-4 text-center">Pedido Pickup</h2>
-  {% if messages %} {% for message in messages %}
-  <div class="alert alert-danger">{{ message }}</div>
-  {% endfor %} {% endif %}
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-danger">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
   <form id="pickup-form" method="post">
     {% csrf_token %}
     <!-- Paso 1: Seleccionar sucursal -->
@@ -18,7 +18,7 @@
         id="sucursal-select"
         required
       >
-        <option value="">Selecciona una sucursal</option>
+        <option value="">Selecciona la sucursal de tu preferencia</option>
         {% for sucursal in sucursales %}
         <option value="{{ sucursal.id }}">{{ sucursal }}</option>
         {% endfor %}
@@ -61,24 +61,41 @@
     <!-- Paso 3: Agregar productos y ver carrito al lado -->
     <div id="paso-3" style="display: none">
       <h5 class="mb-3">3. Agrega productos a tu pedido</h5>
+      <div class="mb-3">
+        <label for="filtro-tipo" class="form-label fw-semibold">Filtrar productos por tipo:</label>
+        <select id="filtro-tipo" class="form-select w-auto d-inline-block" style="min-width: 180px;" onchange="filtrarProductosPorTipo()">
+          <option value="">Todos</option>
+          {% for t in tipos %}
+            <option value="{{ t }}">{{ t|capfirst }}</option>
+          {% endfor %}
+        </select>
+      </div>
       <div class="row">
         <!-- Lista de productos -->
         <div class="col-md-7 mb-4">
           <div class="row row-cols-1 row-cols-md-2 g-3">
             {% for producto in productos %}
-            <div class="col">
-              <div class="card h-100">
+            <div class="col producto-item" data-tipo="{{ producto.tipo }}">
+              <div class="card h-100 shadow-sm border-0 producto-card" style="transition: box-shadow .2s;">
                 {% if producto.imagen %}
                 <img
                   src="{{ producto.imagen.url }}"
                   class="card-img-top"
-                  style="height: 120px; object-fit: cover"
+                  style="height: 130px; object-fit: cover; border-radius: 0.5rem 0.5rem 0 0;"
                 />
+                {% else %}
+                <div
+                  class="bg-light d-flex align-items-center justify-content-center"
+                  style="height: 130px; border-radius: 0.5rem 0.5rem 0 0;"
+                >
+                  <span class="text-muted">Sin imagen</span>
+                </div>
                 {% endif %}
                 <div class="card-body p-2">
-                  <h6 class="card-title mb-1">
+                  <h6 class="card-title mb-1 fw-bold text-dark">
                     {{ producto.nombre_producto }}
                   </h6>
+                  <span class="badge bg-primary mb-2">{{ producto.tipo|capfirst }}</span>
                   <p class="mb-1 text-muted" style="font-size: 0.9em">
                     ${{ producto.precio }}
                   </p>
@@ -87,7 +104,7 @@
                     class="btn btn-outline-primary btn-sm w-100"
                     onclick="agregarAlCarrito({{ producto.id }}, '{{ producto.nombre_producto|escapejs }}', {{ producto.precio }})"
                   >
-                    Agregar
+                    <i class="bi bi-cart-plus"></i> Agregar
                   </button>
                 </div>
               </div>
@@ -97,10 +114,10 @@
         </div>
         <!-- Carrito a la derecha -->
         <div class="col-md-5">
-          <div class="card h-100">
+          <div class="card h-100 shadow-sm border-0">
             <div class="card-header bg-primary text-white fw-bold">Carrito</div>
             <div class="card-body" id="carrito-lista"></div>
-            <div class="card-footer">
+            <div class="card-footer bg-white">
               <span class="fw-bold"
                 >Total: $<span id="carrito-total">0.00</span></span
               >
@@ -140,28 +157,53 @@
       </select>
       <div id="datos-usuario" style="display: none">
         <h6 class="mb-2">Verifica tus datos</h6>
+        {% if not nombre or not correo or not telefono %}
+          <div class="alert alert-info p-2">
+            Los datos que ingreses se guardarán en tu perfil para futuros pedidos.
+          </div>
+        {% endif %}
         <input
           type="text"
           class="form-control mb-2"
           name="nombre"
           placeholder="Nombre completo"
-          required
+          value="{{ nombre }}"
+          {% if nombre %}readonly{% else %}required{% endif %}
         />
         <input
           type="email"
           class="form-control mb-2"
           name="correo"
           placeholder="Correo electrónico"
-          required
+          value="{{ correo }}"
+          {% if correo %}readonly{% else %}required{% endif %}
         />
         <input
           type="tel"
           class="form-control mb-2"
           name="telefono"
           placeholder="Teléfono"
-          required
+          value="{{ telefono }}"
+          {% if telefono %}readonly{% else %}required{% endif %}
         />
       </div>
+
+      {% if perfil %}
+        <div class="mb-3">
+          <label class="fw-semibold">¿Cuántos puntos deseas usar? (Tienes {{ perfil.puntos }} puntos disponibles)</label>
+          <input type="number" name="puntos_a_usar" id="puntos-a-usar" class="form-control" min="0" max="{{ perfil.puntos }}" value="0" oninput="actualizarTotalConPuntos()">
+          <div class="form-text">
+            1 punto = $0.50 de descuento en tu pedido.
+          </div>
+        </div>
+      {% endif %}
+      <div class="alert alert-info mb-3">
+        Ganarás <span id="puntos-ganar">0</span> puntos con este pedido.
+      </div>
+      <div class="alert alert-success mb-2" id="total-con-puntos" style="display:none;">
+        Total a pagar usando puntos: $<span id="total-final"></span>
+      </div>
+
       <button
         type="button"
         class="btn btn-secondary w-100 mb-2"
@@ -176,7 +218,34 @@
   </form>
 </div>
 
+<style>
+.producto-card:hover {
+  box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,.15)!important;
+  transform: translateY(-2px);
+}
+#carrito-lista .d-flex {
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+}
+#carrito-lista .d-flex:last-child {
+  border-bottom: none;
+}
+</style>
+
 <script>
+  // Filtro por tipo de producto
+  function filtrarProductosPorTipo() {
+    const tipoSeleccionado = document.getElementById("filtro-tipo").value;
+    document.querySelectorAll('.producto-item').forEach(function(card) {
+      if (!tipoSeleccionado || card.getAttribute('data-tipo') === tipoSeleccionado) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
   // Navegación entre pasos
   function mostrarPaso1() {
     document.getElementById("paso-1").style.display = "";
@@ -213,6 +282,8 @@
     document.getElementById("paso-2").style.display = "none";
     document.getElementById("paso-3").style.display = "none";
     document.getElementById("paso-4").style.display = "";
+    calcularPuntosGanar();
+    actualizarTotalConPuntos();
   }
   document
     .getElementById("tipo-pago-select")
@@ -250,6 +321,41 @@
     actualizarCarrito();
   }
 
+  function calcularPuntosGanar() {
+    let total = 0;
+    let puntosExtra = 0;
+    carrito.forEach(function(p) {
+      total += p.precio * p.cantidad;
+      // Si tienes puntos_extra por producto, agrégalos aquí:
+      if (typeof p.puntos_extra !== 'undefined') {
+        puntosExtra += p.puntos_extra * p.cantidad;
+      }
+    });
+    let puntosPorMonto = Math.floor(total / 30) * 5;
+    let totalPuntos = puntosPorMonto + puntosExtra;
+    document.getElementById('puntos-ganar').textContent = totalPuntos;
+    return { total, totalPuntos };
+  }
+const VALOR_PUNTO = 0.50; // 1 punto = $0.50
+
+function actualizarTotalConPuntos() {
+  let { total } = calcularPuntosGanar();
+  let puntosInput = document.getElementById('puntos-a-usar');
+  if (!puntosInput) return;
+  let puntosUsar = parseInt(puntosInput.value) || 0;
+  let maxPuntos = parseInt(puntosInput.max) || 0;
+  if (puntosUsar > maxPuntos) puntosUsar = maxPuntos;
+  if (puntosUsar * VALOR_PUNTO > total) puntosUsar = Math.floor(total / VALOR_PUNTO);
+  puntosInput.value = puntosUsar;
+  let totalFinal = total - (puntosUsar * VALOR_PUNTO);
+  let totalConPuntos = document.getElementById('total-con-puntos');
+  let totalFinalSpan = document.getElementById('total-final');
+  if (totalConPuntos && totalFinalSpan) {
+    totalConPuntos.style.display = 'block';
+    totalFinalSpan.textContent = totalFinal.toFixed(2);
+  }
+}
+
   function actualizarCarrito() {
     let lista = document.getElementById("carrito-lista");
     let total = 0;
@@ -270,13 +376,22 @@
             <span class="me-2">$${(p.precio * p.cantidad).toFixed(2)}</span>
             <button type="button" class="btn btn-danger btn-sm" onclick="quitarDelCarrito(${
               p.id
-            })">Quitar</button>
+            })"><i class="bi bi-trash"></i>Eliminar</button>
           </div>
         `;
       });
     }
     document.getElementById("carrito-total").innerText = total.toFixed(2);
     document.getElementById("carrito-json").value = JSON.stringify(carrito);
+    calcularPuntosGanar();
+    actualizarTotalConPuntos();
   }
+
+  // Inicializa el paso 1 al cargar
+  document.addEventListener("DOMContentLoaded", function() {
+    mostrarPaso1();
+    calcularPuntosGanar();
+    actualizarTotalConPuntos();
+  });
 </script>
 {% endblock %}

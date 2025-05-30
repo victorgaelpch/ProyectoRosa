@@ -1,0 +1,118 @@
+{% extends "Principal/base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4 text-center">Pedido Kiosko</h2>
+  <form method="post" id="kiosko-form">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label>Sucursal</label>
+      <select name="sucursal" class="form-select" required>
+        <option value="">Selecciona una sucursal</option>
+        {% for sucursal in sucursales %}
+          <option value="{{ sucursal.id }}">{{ sucursal }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label>Nombre (opcional)</label>
+      <input type="text" name="nombre" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label>Teléfono (opcional)</label>
+      <input type="tel" name="telefono" class="form-control">
+    </div>
+    <h5>Selecciona productos:</h5>
+    <div id="productos-lista">
+      {% for producto in productos %}
+        <div class="mb-2">
+          <label>{{ producto.nombre_producto }} (${{ producto.precio }})</label>
+          <input type="number" min="0" value="0" class="form-control d-inline-block w-auto ms-2" style="width:80px" data-id="{{ producto.id }}" data-nombre="{{ producto.nombre_producto }}" data-precio="{{ producto.precio }}">
+        </div>
+      {% endfor %}
+    </div>
+    {% if user.is_authenticated and user.perfil %}
+      <div class="mb-3">
+        <label>¿Cuántos puntos deseas usar? (Tienes {{ user.perfil.puntos }} puntos)</label>
+        <input type="number" name="puntos_a_usar" id="puntos-a-usar" class="form-control" min="0" max="{{ user.perfil.puntos }}" value="0" oninput="actualizarTotalConPuntosKiosko()">
+        <div class="form-text">
+          1 punto = $0.50 de descuento en tu pedido.
+        </div>
+      </div>
+    {% endif %}
+    <div class="alert alert-info mb-3">
+      Ganarás <span id="puntos-ganar">0</span> puntos con este pedido.
+    </div>
+    <div class="alert alert-success mb-2" id="total-con-puntos" style="display:none;">
+      Total a pagar usando puntos: $<span id="total-final"></span>
+    </div>
+    <input type="hidden" name="carrito_json" id="carrito-json">
+    <button type="submit" class="btn btn-success w-100 mt-3">Finalizar pedido</button>
+  </form>
+</div>
+<script>
+  // Convierte los productos seleccionados en JSON antes de enviar
+  document.getElementById('kiosko-form').addEventListener('submit', function(e) {
+    let carrito = [];
+    document.querySelectorAll('#productos-lista input[type=number]').forEach(function(input) {
+      let cantidad = parseInt(input.value);
+      if (cantidad > 0) {
+        carrito.push({
+          id: input.dataset.id,
+          nombre: input.dataset.nombre,
+          precio: parseFloat(input.dataset.precio),
+          cantidad: cantidad
+        });
+      }
+    });
+    document.getElementById('carrito-json').value = JSON.stringify(carrito);
+  });
+
+  // Cálculo de puntos y total con puntos (solo si el usuario está autenticado)
+  const VALOR_PUNTO = 0.50;
+  function calcularPuntosGanarKiosko() {
+    let total = 0;
+    let puntosExtra = 0;
+    document.querySelectorAll('#productos-lista input[type=number]').forEach(function(input) {
+      let cantidad = parseInt(input.value);
+      let precio = parseFloat(input.dataset.precio);
+      if (cantidad > 0) {
+        total += precio * cantidad;
+      }
+    });
+    let puntosPorMonto = Math.floor(total / 30) * 5;
+    let totalPuntos = puntosPorMonto + puntosExtra;
+    document.getElementById('puntos-ganar').textContent = totalPuntos;
+    return { total, totalPuntos };
+  }
+  function actualizarTotalConPuntosKiosko() {
+    let { total } = calcularPuntosGanarKiosko();
+    let puntosInput = document.getElementById('puntos-a-usar');
+    if (!puntosInput) return;
+    let puntosUsar = parseInt(puntosInput.value) || 0;
+    let maxPuntos = parseInt(puntosInput.max) || 0;
+    if (puntosUsar > maxPuntos) puntosUsar = maxPuntos;
+    if (puntosUsar * VALOR_PUNTO > total) puntosUsar = Math.floor(total / VALOR_PUNTO);
+    puntosInput.value = puntosUsar;
+    let totalFinal = total - (puntosUsar * VALOR_PUNTO);
+    let totalConPuntos = document.getElementById('total-con-puntos');
+    let totalFinalSpan = document.getElementById('total-final');
+    if (totalConPuntos && totalFinalSpan) {
+      totalConPuntos.style.display = 'block';
+      totalFinalSpan.textContent = totalFinal.toFixed(2);
+    }
+  }
+  document.querySelectorAll('#productos-lista input[type=number]').forEach(function(input) {
+    input.addEventListener('input', function() {
+      calcularPuntosGanarKiosko();
+      actualizarTotalConPuntosKiosko();
+    });
+  });
+  if (document.getElementById('puntos-a-usar')) {
+    document.getElementById('puntos-a-usar').addEventListener('input', actualizarTotalConPuntosKiosko);
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    calcularPuntosGanarKiosko();
+    actualizarTotalConPuntosKiosko();
+  });
+</script>
+{% endblock %}

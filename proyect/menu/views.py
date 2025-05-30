@@ -5,11 +5,17 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 
 def lista_productos(request):
+    tipo = request.GET.get('tipo')
     productos = Producto.objects.all()
+    tipos = Producto.objects.values_list('tipo', flat=True).distinct()
+    if tipo:
+        productos = productos.filter(tipo=tipo)
     es_gerente = request.user.is_authenticated and request.user.groups.filter(
         name='Gerente').exists()
     return render(request, 'menu/lista_productos.html', {
         'productos': productos,
+        'tipos': tipos,
+        'tipo_seleccionado': tipo,
         'es_gerente': es_gerente,
     })
 

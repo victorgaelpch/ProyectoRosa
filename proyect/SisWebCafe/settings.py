@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     'menu',
     'administracion',
     'gestion',
+    'caja',
+
 ]
 
 
@@ -77,7 +79,7 @@ WSGI_APPLICATION = 'SisWebCafe.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -93,7 +95,7 @@ DATABASES = {
         'USER': 'postgres',
         # 'USER': 'usuario_lectura',
         'PASSWORD': 'tamalitoUaemex',
-        'HOST': '187.220.212.95',  # Ej: 192.168.1.101
+        'HOST': '187.221.22.67',  # Ej: 192.168.1.101
         'PORT': '5432',  # Puerto del Master en HAProxy
     },
     'read': {  # Para lecturas (Slaves)
@@ -102,13 +104,13 @@ DATABASES = {
         'USER': 'postgres',
         # 'USER': 'usuario_lectura',
         'PASSWORD': 'tamalitoUaemex',
-        'HOST': '187.220.212.95',
+        'HOST': '187.221.22.67',
         'PORT': '5433',  # Puerto de Slaves en HAProxy
     }
 }
-"""
+
 # Router para manejar lecturas/escrituras
-# DATABASE_ROUTERS = ['SisWebCafe.routers.PrimaryReplicaRouter']
+DATABASE_ROUTERS = ['SisWebCafe.routers.PrimaryReplicaRouter']
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 

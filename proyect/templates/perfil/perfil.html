@@ -1,85 +1,62 @@
-{% extends "Principal/base.html" %} {% load static %} {% block content %}
-<div class="bg-white p-4 rounded shadow-lg text-center">
-  <h1 class="display-4 fw-bold text-dark">
-    Hola, bienvenido {{ user.username }}!
-  </h1>
-  <p class="lead text-secondary">
-    Este es tu perfil. Aquí puedes ver tus datos.
-  </p>
-
-  <hr />
-
-  <!-- INFO DEL USUARIO -->
-  <div class="mt-4 text-start">
-    <h4 class="text-dark">Información de tu perfil</h4>
-    <p class="text-muted">
-      <strong>Nombre de usuario: </strong> {{ user.username }}
-    </p>
-    <p class="text-muted">
-      <strong>Correo electrónico: </strong> {{ user.email }}
-    </p>
-    <p class="text-muted">
-      <strong>Nombre completo: </strong>{{ perfil.nombre_usuario }}
-      {{perfil.apellido_pat_usuario }} {{perfil.apellido_mat_usuario }}
-    </p>
-    <p class="text-muted"><strong>Teléfono:</strong> {{ perfil.telefono }}</p>
-    <p class="text-muted">
-      <strong>Fecha de nacimiento: </strong>
-      {{ perfil.fecha_nacimiento|date:"d/m/Y" }}
-    </p>
+{% extends "Principal/base.html" %}
+{% load static %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="bg-white p-4 rounded shadow-lg mb-4">
+      <div class="d-flex align-items-center mb-3">
+        <img src="{% static 'img/logo.jpg' %}" alt="Avatar" width="70" height="70" class="rounded-circle me-3 border" style="object-fit:cover;">
+        <div class="text-start">
+          <h2 class="fw-bold text-dark mb-1">¡Hola, {{ user.username }}!</h2>
+          <span class="badge bg-primary text-white">Cliente registrado</span>
+        </div>
+      </div>
+      <p class="lead text-secondary mb-3">
+        Este es tu perfil. Aquí puedes ver y editar tus datos personales y direcciones de facturación.
+      </p>
+      <hr>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <h5 class="text-dark mb-3"><i class="bi bi-person-circle me-2"></i>Información personal</h5>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Nombre de usuario:</strong> {{ user.username }}</li>
+            <li class="list-group-item"><strong>Correo electrónico:</strong> {{ user.email }}</li>
+            <li class="list-group-item">
+              <strong>Nombre completo:</strong>
+              {{ perfil.nombre_usuario }} {{ perfil.apellido_pat_usuario }} {{ perfil.apellido_mat_usuario }}
+            </li>
+            <li class="list-group-item"><strong>Teléfono:</strong> {{ perfil.telefono }}</li>
+            <li class="list-group-item"><strong>Fecha de nacimiento:</strong> {{ perfil.fecha_nacimiento|date:"d/m/Y" }}</li>
+          </ul>
+          <a href="{% url 'editar_perfil' %}" class="btn btn-outline-primary mt-3 w-100">
+            <i class="bi bi-pencil-square"></i> Editar perfil
+          </a>
+        </div>
+        <div class="col-md-6 mb-3">
+          <h5 class="text-dark mb-3"><i class="bi bi-geo-alt-fill me-2"></i>Direcciones de facturación</h5>
+          <ul class="list-group mb-2">
+            {% for direccion in direcciones %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>{{ direccion }}</span>
+              <span>
+                <a href="{% url 'editar_direccion' direccion.id %}" class="btn btn-sm btn-warning me-1" title="Editar"><i class="bi bi-pencil"></i></a>
+                <a href="{% url 'eliminar_direccion' direccion.id %}" class="btn btn-sm btn-danger" title="Eliminar"><i class="bi bi-trash"></i></a>
+              </span>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">No tienes direcciones agregadas.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <hr>
+      <form action="/logout/" method="POST" class="text-center mt-4">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger px-4 py-2 fs-5">
+          <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+        </button>
+      </form>
+    </div>
   </div>
-
-  <!-- BOTÓN PARA EDITAR PERFIL -->
-  <div class="mt-4 text-start">
-    <a href="{% url 'editar_perfil' %}" class="btn btn-primary">
-      Editar perfil
-    </a>
-  </div>
-
-  <hr />
-
-  <!-- LISTA DE DIRECCIONES -->
-  <div class="mt-4 text-start">
-    <h4 class="text-dark">Direcciones de facturación</h4>
-    <ul class="list-group">
-      {% for direccion in direcciones %}
-      <li
-        class="list-group-item d-flex justify-content-between align-items-center"
-      >
-        {{ direccion }}
-        <span>
-          <a
-            href="{% url 'editar_direccion' direccion.id %}"
-            class="btn btn-sm btn-warning"
-            >Editar</a
-          >
-          <a
-            href="{% url 'eliminar_direccion' direccion.id %}"
-            class="btn btn-sm btn-danger"
-            >Eliminar</a
-          >
-        </span>
-      </li>
-      {% empty %}
-      <li class="list-group-item text-muted">
-        No tienes direcciones agregadas.
-      </li>
-      {% endfor %}
-    </ul>
-  </div>
-
-  <hr />
-
-  <!-- CERRAR SESIÓN -->
-  <form action="/logout/" method="POST" class="text-center mt-5">
-    {% csrf_token %}
-    <button
-      type="submit"
-      class="btn btn-danger"
-      style="padding: 10px 20px; font-size: 1.1rem"
-    >
-      Cerrar sesión
-    </button>
-  </form>
 </div>
-{% endblock content %}
+{% endblock %}

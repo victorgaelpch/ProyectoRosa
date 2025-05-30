@@ -27,6 +27,8 @@ urlpatterns = [
     path('', include('pedido.urls'), name='pedido'),
     path('', include('menu.urls'), name='menu'),
     path('', include('gestion.urls'), name='gestion'),
+    path('', include('administracion.urls'), name='administracion'),
+    path('', include('caja.urls'), name='caja'),
     path("__reload__/", include("django_browser_reload.urls")),
 
     # Cambio de contraseña
