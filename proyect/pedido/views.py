@@ -239,6 +239,7 @@ def puntos_recompensas(request):
 def kiosko_pedido(request):
     productos = Producto.objects.all()
     sucursales = Sucursal.objects.all()
+    tipos = Producto.objects.values_list('tipo', flat=True).distinct()
     mensaje = None
     VALOR_PUNTO = Decimal('0.50')
 
@@ -333,4 +334,5 @@ def kiosko_pedido(request):
     return render(request, 'pedido/kiosko.html', {
         'productos': productos,
         'sucursales': sucursales,
+        'tipos': tipos,
     })

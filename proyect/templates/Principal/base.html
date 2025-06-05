@@ -17,47 +17,96 @@
 
     <title>Café sin filas</title>
     <style>
+      :root {
+        --cafe-oscuro: #6d4c2b;
+        --cafe-medio: #a67c52;
+        --cafe-claro: #fff8f0;
+        --cafe-dorado: #e0c9a6;
+        --cafe-acento: #d2691e;
+        --cafe-blanco: #f7f6f3;
+      }
       body {
         font-family: 'Montserrat', Arial, sans-serif;
-        background: #f7f6f3;
+        background: var(--cafe-blanco);
       }
       .navbar {
-        background: #fff8f0 !important;
-        border-bottom: 2px solid #e0c9a6;
+        background: var(--cafe-claro) !important;
+        border-bottom: 2px solid var(--cafe-dorado);
+        box-shadow: 0 2px 8px rgba(166,124,82,0.07);
       }
       .navbar-brand {
         font-weight: 700;
-        color: #a67c52 !important;
+        color: var(--cafe-medio) !important;
         letter-spacing: 1px;
         font-size: 1.7rem;
       }
       .nav-link {
-        color: #6d4c2b !important;
+        color: var(--cafe-oscuro) !important;
         font-weight: 500;
         transition: color 0.2s;
       }
       .nav-link:hover, .nav-link.active {
-        color: #d2691e !important;
+        color: var(--cafe-acento) !important;
       }
-      .btn-primary, .btn-outline-primary {
-        background: #a67c52;
-        border-color: #a67c52;
+      .btn-primary, .btn-brown {
+        background: var(--cafe-medio);
+        border-color: var(--cafe-medio);
+        color: #fff;
       }
-      .btn-primary:hover, .btn-outline-primary:hover {
-        background: #d2691e;
-        border-color: #d2691e;
+      .btn-primary:hover, .btn-brown:hover {
+        background: var(--cafe-acento);
+        border-color: var(--cafe-acento);
+        color: #fff;
       }
-      footer {
-        background: #fff8f0;
-        color: #a67c52;
-        text-align: center;
-        padding: 18px 0 10px 0;
-        border-top: 2px solid #e0c9a6;
-        margin-top: 60px;
-        font-size: 1rem;
+      .btn-outline-primary, .btn-outline-brown {
+        background: transparent;
+        color: var(--cafe-medio);
+        border-color: var(--cafe-medio);
+      }
+      .btn-outline-primary:hover, .btn-outline-brown:hover {
+        background: var(--cafe-medio);
+        color: #fff;
+        border-color: var(--cafe-medio);
+      }
+      .btn-outline-danger {
+        border-color: #b94a48;
+        color: #b94a48;
+        background: transparent;
+      }
+      .btn-outline-danger:hover {
+        background: #b94a48;
+        color: #fff;
+        border-color: #b94a48;
       }
       .dropdown-menu {
         border-radius: 0.7rem;
+        background: var(--cafe-claro);
+      }
+      .dropdown-item:active, .dropdown-item:hover {
+        background: var(--cafe-dorado);
+        color: var(--cafe-oscuro);
+      }
+      footer {
+        background: var(--cafe-claro);
+        color: var(--cafe-medio);
+        text-align: center;
+        padding: 18px 0 10px 0;
+        border-top: 2px solid var(--cafe-dorado);
+        margin-top: 60px;
+        font-size: 1rem;
+        letter-spacing: 0.5px;
+      }
+      /* Mejor contraste para navbar y botones en fondo claro */
+      .navbar .btn, .navbar .btn:focus {
+        box-shadow: none !important;
+      }
+      .navbar .btn-primary, .navbar .btn-outline-primary {
+        margin-left: 0.5rem;
+      }
+      /* Responsive: navbar-brand logo */
+      .navbar-brand img {
+        border-radius: 50%;
+        box-shadow: 0 2px 6px rgba(166,124,82,0.13);
       }
     </style>
   </head>
@@ -75,7 +124,7 @@
       <nav class="navbar navbar-expand-lg shadow sticky-top">
         <div class="container-fluid">
           <a class="navbar-brand d-flex align-items-center" href="/">
-            <img src="{% static 'img/logo.jpg' %}" alt="Logo" width="38" class="me-2" style="border-radius: 50%;">
+            <img src="{% static 'img/logo.jpg' %}" alt="Logo" width="38" class="me-2">
             Esencia de Café
           </a>
           <button
@@ -137,7 +186,7 @@
               </li>
               {% else %}
               <li class="nav-item">
-                <a class="btn btn-primary ms-2" href="/signin"><i class="bi bi-person"></i> Iniciar sesión</a>
+                <a class="btn btn-brown ms-2" href="/signin"><i class="bi bi-person"></i> Iniciar sesión</a>
               </li>
               {% endif %}
             </ul>
