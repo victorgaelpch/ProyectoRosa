@@ -84,6 +84,6 @@ def eliminar_direccion(request, direccion_id):
             id=direccion_id, usuario=request.user)
         direccion.delete()
     except DireccionFacturacion.DoesNotExist:
-        pass  # Manejar el error si es necesario
+        pass 
 
     return redirect('editar_perfil')
