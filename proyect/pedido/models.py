@@ -82,7 +82,6 @@ class PedidoPickup(models.Model):
 class PedidoKiosko(models.Model):
     pedido = models.OneToOneField(
         Pedido, on_delete=models.CASCADE, related_name='kiosko')
-    # Ejemplo: código QR, número de orden, etc.
     metodo_confirmacion = models.CharField(max_length=50)
 
 

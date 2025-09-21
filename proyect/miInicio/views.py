@@ -54,9 +54,7 @@ def inicio_sesion(request):
             user = authenticate(username=username, password=password)
             login(request, user)
             if user.is_authenticated:
-                # Redirección según tipo de usuario
                 if user.is_staff:
-                    # Cambia por el nombre de tu url de caja
                     return redirect('caja_buscar_pedido')
                 else:
                     return redirect('ver_perfil')

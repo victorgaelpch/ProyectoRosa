@@ -121,6 +121,7 @@
       </nav>
     {% else %}
       <!-- Navbar normal para clientes y gerentes -->
+       <!--lo comento para no perderme jsjsj-->
       <nav class="navbar navbar-expand-lg shadow sticky-top">
         <div class="container-fluid">
           <a class="navbar-brand d-flex align-items-center" href="/">
@@ -161,7 +162,14 @@
                   </li>
                 </ul>
               </li>
-              {% endif %}
+              <li class="nav-item">
+                <a class="nav-link" href="/perfil"><i class="bi bi-person-circle"></i> Hola, {{user.username}}.</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/productos"><i class="bi bi-list-ul"></i> Menú</a>
+              </li>
+              
+              {% else %}
               <li class="nav-item">
                 <a class="nav-link" href="/"><i class="bi bi-house-door"></i> Inicio</a>
               </li>
@@ -169,12 +177,14 @@
                 <a class="nav-link" href="/ordenar"><i class="bi bi-bag-plus"></i> Ordena Online</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'puntos_recompensas' %}"><i class="bi bi-star"></i> Puntos y Recompensas</a>
-              </li>
-              <li class="nav-item">
                 <a class="nav-link" href="/productos"><i class="bi bi-list-ul"></i> Menú</a>
               </li>
-              {% if user.is_authenticated %}
+              
+              {% if user.is_authenticated%}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'puntos_recompensas' %}"><i class="bi bi-star"></i> Puntos y Recompensas</a>
+              </li>
+              
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'lista_pedidos_pickup' %}"><i class="bi bi-clipboard-check"></i> Pedidos</a>
               </li>
@@ -188,6 +198,7 @@
               <li class="nav-item">
                 <a class="btn btn-brown ms-2" href="/signin"><i class="bi bi-person"></i> Iniciar sesión</a>
               </li>
+              {% endif %}
               {% endif %}
             </ul>
           </div>

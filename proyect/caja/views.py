@@ -15,7 +15,6 @@ def caja_buscar_pedido(request):
         try:
             pedido = Pedido.objects.select_related('pickup').get(codigo=codigo)
             if nuevo_estado and nuevo_estado in ['pagado', 'recogido']:
-                # Solo suma puntos si el pedido no estaba ya pagado
                 if pedido.estado != 'pagado' and nuevo_estado == 'pagado':
                     puntos_ganados = sumar_puntos_a_cliente(
                         pedido.usuario, pedido)

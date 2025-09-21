@@ -2,7 +2,7 @@
 from django.contrib.auth.models import User
 from django import forms
 from pedido.models import PerfilUsuario
-from perfil.models import DireccionFacturacion  # o donde tengas este modelo
+from perfil.models import DireccionFacturacion
 
 
 class UserForm(forms.ModelForm):
@@ -30,4 +30,4 @@ class PerfilUsuarioForm(forms.ModelForm):
 class DireccionFacturacionForm(forms.ModelForm):
     class Meta:
         model = DireccionFacturacion
-        exclude = ['usuario']  # Se asigna en la vista
+        exclude = ['usuario']

@@ -1,3 +1,4 @@
+from .models import Producto, BebidaCaliente, BebidaFria, Bocadillo, Snack, Reposteria
 from django import forms
 from .models import Producto
 
@@ -35,3 +36,42 @@ class ProductoForm(forms.ModelForm):
             'tipo_pan', 'relleno', 'tipo_snack', 'tipo_sabor',
             'tipo_reposteria', 'glaseado', 'decorado'
         ]
+
+
+# forms.py
+
+
+class ProductoForm(forms.ModelForm):
+    class Meta:
+        model = Producto
+        fields = '__all__'
+
+
+class BebidaCalienteForm(forms.ModelForm):
+    class Meta:
+        model = BebidaCaliente
+        fields = '__all__'
+
+
+class BebidaFriaForm(forms.ModelForm):
+    class Meta:
+        model = BebidaFria
+        fields = '__all__'
+
+
+class BocadilloForm(forms.ModelForm):
+    class Meta:
+        model = Bocadillo
+        fields = '__all__'
+
+
+class SnackForm(forms.ModelForm):
+    class Meta:
+        model = Snack
+        fields = '__all__'
+
+
+class ReposteriaForm(forms.ModelForm):
+    class Meta:
+        model = Reposteria
+        fields = '__all__'

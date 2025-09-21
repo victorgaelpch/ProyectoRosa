@@ -16,7 +16,6 @@ def seleccionar_tipo_pedido(request):
 
 @login_required
 def pickup_pedido(request):
-    # Obtén datos del usuario
     nombre = request.user.get_full_name() or ''
     correo = request.user.email or ''
     telefono = ''
@@ -28,7 +27,7 @@ def pickup_pedido(request):
     productos = Producto.objects.all()
     form = PedidoPickupForm()
 
-    VALOR_PUNTO = Decimal('0.50')  # ahora es Decimal
+    VALOR_PUNTO = Decimal('0.50')
 
     if request.method == 'POST':
         form = PedidoPickupForm(request.POST)
@@ -39,7 +38,6 @@ def pickup_pedido(request):
         carrito_json = request.POST.get('carrito_json')
         carrito = json.loads(carrito_json) if carrito_json else []
 
-        # Validación básica para efectivo
         if tipo_pago == 'efectivo':
             if not nombre_post or not correo_post or not telefono_post:
                 messages.error(
@@ -58,7 +56,6 @@ def pickup_pedido(request):
             sucursal_id = request.POST.get('sucursal')
             sucursal = Sucursal.objects.get(id=sucursal_id)
 
-            # Calcular total del carrito
             total = 0
             for item in carrito:
                 producto = Producto.objects.get(id=item['id'])
@@ -66,17 +63,14 @@ def pickup_pedido(request):
                 subtotal = producto.precio * cantidad
                 total += subtotal
 
-            # Pago con puntos
             puntos_a_usar = int(request.POST.get('puntos_a_usar', 0))
             max_puntos = min(perfil.puntos if perfil else 0,
                              int(total // VALOR_PUNTO))
             puntos_a_usar = min(puntos_a_usar, max_puntos)
             total_final = total - (puntos_a_usar * VALOR_PUNTO)
 
-            # Si el total final es 0, el pedido se marca como pagado
             estado_pedido = 'pagado' if total_final == 0 else 'pendiente'
 
-            # Crea el pedido con el total final y puntos usados
             pedido = Pedido.objects.create(
                 usuario=request.user,
                 sucursal=sucursal,
@@ -85,7 +79,6 @@ def pickup_pedido(request):
                 puntos_usados=puntos_a_usar,
             )
 
-            # Crea los detalles del pedido
             for item in carrito:
                 producto = Producto.objects.get(id=item['id'])
                 cantidad = int(item['cantidad'])
@@ -109,7 +102,7 @@ def pickup_pedido(request):
                 tipo_pago=tipo_pago,
             )
 
-            # Guardar datos en el perfil si no existen
+            # Guarda los pischis datos en el perfil si no existen
             user = request.user
             if tipo_pago == 'efectivo':
                 if not user.first_name and nombre_post:
@@ -122,7 +115,7 @@ def pickup_pedido(request):
                 if perfil and not perfil.telefono and telefono_post:
                     perfil.telefono = telefono_post
                     perfil.save()
-            # Redirige a la pantalla de éxito
+            # Redirige a la pantalla de exito XDXD
             return redirect('pickup_exito_estado', pedido_id=pedido.id)
     tipos = Producto.objects.values_list('tipo', flat=True).distinct()
     return render(request, 'pedido/pickup.html', {
@@ -133,7 +126,7 @@ def pickup_pedido(request):
         'nombre': nombre,
         'correo': correo,
         'telefono': telefono,
-        'perfil': perfil,  # Para mostrar puntos disponibles en el template
+        'perfil': perfil,
     })
 
 
@@ -176,7 +169,7 @@ def lista_pedidos_pickup(request):
     pedidos = Pedido.objects.filter(
         pickup__isnull=False,
         estado__in=estados,
-        usuario=request.user  # Si solo quieres mostrar los pedidos del usuario actual
+        usuario=request.user
     ).select_related('sucursal', 'pickup').order_by('pickup__horario_recoleccion')
 
     return render(request, 'pedido/lista_pedidos_pickup.html', {
@@ -188,7 +181,7 @@ def lista_pedidos_pickup(request):
 
 def sumar_puntos_a_cliente(usuario, pedido):
     if not usuario or not hasattr(usuario, 'perfil'):
-        return 0  # No sumar puntos si no hay usuario o perfil
+        return 0
     perfil = usuario.perfil
     puntos_por_total = int(pedido.total // 30) * 5
     puntos_extra = sum([detalle.producto.puntos_extra *
@@ -201,7 +194,7 @@ def sumar_puntos_a_cliente(usuario, pedido):
 
 def usar_puntos_en_pedido(usuario, pedido):
     perfil = usuario.perfil
-    # Por ejemplo: 1 punto = $1 de descuento
+
     puntos_a_usar = min(perfil.puntos, int(pedido.total))
     pedido.total -= puntos_a_usar
     perfil.puntos -= puntos_a_usar
@@ -259,7 +252,6 @@ def kiosko_pedido(request):
             subtotal = producto.precio * cantidad
             total += subtotal
 
-        # Si el usuario está autenticado, aplica lógica de puntos igual que pickup
         if request.user.is_authenticated and hasattr(request.user, 'perfil'):
             perfil = request.user.perfil
             puntos_a_usar = int(request.POST.get('puntos_a_usar', 0))
@@ -274,12 +266,12 @@ def kiosko_pedido(request):
                 total=total_final,
                 puntos_usados=puntos_a_usar,
             )
-            # Descuenta los puntos del perfil
+
             if puntos_a_usar > 0:
                 perfil.puntos -= puntos_a_usar
                 perfil.save()
         else:
-            # Pedido anónimo, sin puntos
+
             pedido = Pedido.objects.create(
                 usuario=None,
                 sucursal=sucursal,
@@ -289,7 +281,6 @@ def kiosko_pedido(request):
                 puntos_usados=0,
             )
 
-        # Crea los detalles del pedido
         for item in carrito:
             producto = Producto.objects.get(id=item['id'])
             cantidad = int(item['cantidad'])
@@ -301,14 +292,12 @@ def kiosko_pedido(request):
                 subtotal=subtotal,
             )
 
-        # Crea el objeto Pickup relacionado (puedes poner horario actual)
         PedidoPickup.objects.create(
             pedido=pedido,
             horario_recoleccion=timezone.now(),
             tipo_pago='kiosko',
         )
 
-        # Si el usuario está autenticado, suma puntos ganados
         if request.user.is_authenticated and hasattr(request.user, 'perfil') and pedido.total > 0:
             puntos_por_total = int(pedido.total // 30) * 5
             puntos_extra = sum([
