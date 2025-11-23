@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'administracion',
     'gestion',
     'caja',
+    'sistema_recomendacion'
 
 ]
 

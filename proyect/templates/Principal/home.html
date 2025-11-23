@@ -12,27 +12,63 @@
     <div class="col-4 h-100 d-none d-md-block">
       <img src="{% static 'img/galeria3.webp' %}" class="w-100 h-100 object-fit-cover home-bg-img" alt="Café 3">
     </div>
-    <!-- Para móvil, una sola imagen de fondo -->
+    <!-- Para móvil -->
     <img src="{% static 'img/galeria1.jpg' %}" class="w-100 h-100 object-fit-cover d-md-none home-bg-img" alt="Café fondo móvil">
   </div>
   <div class="home-bg-overlay"></div>
 </div>
-<div class="d-flex justify-content-center align-items-center vh-100 position-relative" style="z-index:1;">
-  <div class="bg-white p-5 rounded-4 shadow-lg text-center" style="max-width: 520px; border: 2px solid #e0c9a6; backdrop-filter: blur(2px);">
+
+<div class="d-flex justify-content-center align-items-center vh-200 position-relative" style="z-index:1; ">
+  <div class="bg-white p-6 rounded-4 shadow-lg text-center" style="max-width: 2050px; border: 2px solid #e0c9a6; backdrop-filter: blur(2px); padding: 20px;">
     <img src="{% static 'img/logo.jpg' %}" alt="Logo" style="width: 90px; margin-bottom: 18px; border-radius: 50%; box-shadow: 0 2px 8px #a67c5233;">
     <h1 class="display-6 fw-bold mb-3" style="color: #6d4c2b;">¡Bienvenido a <span style="color:#a67c52;">Café sin filas</span>!</h1>
     <p class="lead mb-4" style="color: #6d4c2b;">
-      Disfruta la mejor experiencia de café, realiza tu pedido en línea y recógelo en tu sucursal favorita.<br>
-      <span style="color: #d2691e; font-weight: 600;">¡Acumula puntos y obtén recompensas!</span>
+      Disfruta la mejor experiencia de café con recomendaciones personalizadas.<br>
+      <span style="color: #d2691e; font-weight: 600;">¡Descubre el sabor del día!</span>
     </p>
-    <a href="{% url 'pickup_pedido' %}" class="btn btn-brown btn-lg w-100 mb-2">
-      <i class="bi bi-bag-plus"></i> Hacer un pedido Pickup
-    </a>
-    <a href="{% url 'kiosko_pedido' %}" class="btn btn-outline-brown w-100">
-      <i class="bi bi-tablet"></i> Pedido en Kiosko
-    </a>
+
+    <!-- Recomendación principal -->
+    <div class="card recommendation-card shadow-lg border-0 mb-4">
+      <img src="{% static 'img/ejemplo1.jpg' %}" class="card-img-top" alt="Capuccino">
+      <div class="card-body">
+        <h3 class="card-title text-brown">☕ Recomendación del día: Capuccino Especial</h3>
+        <p class="card-text text-muted">Un balance perfecto entre espresso, leche vaporizada y espuma cremosa. Ideal para tu mañana.</p>
+        <a href="/productos" class="btn btn-brown w-100"><i class="bi bi-cup-hot"></i> Ver en menú</a>
+      </div>
+    </div>
+
+    <!-- Otras recomendaciones -->
+    <h4 class="text-brown mb-3">También podrías disfrutar...</h4>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <img src="{% static 'img/ejemplo1.jpg' %}" class="card-img-top" alt="Frappe">
+          <div class="card-body p-2">
+            <h6 class="card-title">Frappe de Vainilla</h6>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <img src="{% static 'img/ejemplo2.jpg' %}" class="card-img-top" alt="Latte">
+          <div class="card-body p-2">
+            <h6 class="card-title">Latte de Caramelo</h6>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <img src="{% static 'img/ejemplo2.jpg' %}" class="card-img-top" alt="Mocha">
+          <div class="card-body p-2">
+            <h6 class="card-title">Mocha Chocolate</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
+
 <style>
   .home-bg-gallery {
     overflow: hidden;
@@ -53,9 +89,27 @@
     z-index: 1;
   }
   .vh-100 { min-height: 100vh !important; }
-  @media (max-width: 767px) {
-    .home-bg-gallery .row { display: none; }
-    .home-bg-gallery img.d-md-none { display: block !important; }
+  .recommendation-card img {
+    height: 220px;
+    object-fit: cover;
+    border-top-left-radius: .8rem;
+    border-top-right-radius: .8rem;
   }
+  .text-brown { color: #6d4c2b; }
 </style>
+
+<script>
+  const recomendaciones = [
+    { nombre: "Capuccino Especial", img: "{% static 'img/ejemplo2.jpg' %}", desc: "Un balance perfecto entre espresso, leche vaporizada y espuma cremosa." },
+    { nombre: "Latte Vainilla", img: "{% static 'img/ejemplo2.jpg' %}", desc: "Café suave con un toque de vainilla y leche espumada." },
+    { nombre: "Mocha Frío", img: "{% static 'img/ejemplo2.jpg' %}", desc: "Una mezcla deliciosa de espresso, leche y chocolate." }
+  ];
+
+  window.addEventListener("load", () => {
+    const rec = recomendaciones[Math.floor(Math.random() * recomendaciones.length)];
+    document.querySelector(".recommendation-card img").src = rec.img;
+    document.querySelector(".recommendation-card .card-title").innerText = "☕ Recomendación del día: " + rec.nombre;
+    document.querySelector(".recommendation-card .card-text").innerText = rec.desc;
+  });
+</script>
 {% endblock %}
